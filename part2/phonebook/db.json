@@ -1,24 +1,45 @@
 {
-  "persons":[
-    { 
-      "name": "Arto Hellas", 
-      "number": "040-123456",
+  "persons": [
+    {
+      "name": "Arto Hellas",
+      "number": "12-34-2344566",
       "id": "1"
     },
-    { 
-      "name": "Ada Lovelace", 
+    {
+      "name": "Ada Lovelace",
       "number": "39-44-5323523",
       "id": "2"
     },
-    { 
-      "name": "Dan Abramov", 
-      "number": "12-43-234345",
-      "id": "3"
-    },
-    { 
-      "name": "Mary Poppendieck", 
+    {
+      "name": "Mary Poppendieck",
       "number": "39-23-6423122",
       "id": "4"
+    },
+    {
+      "name": "Albert Einstein",
+      "number": "11-23-2334534",
+      "id": "xBT9bmqkokM"
+    },
+    {
+      "name": "Abraham Lincoln",
+      "number": "12-23-2345343",
+      "id": "pxOYqzV3nyM"
+    },
+    {
+      "name": "George Washington",
+      "number": "12-34-345678",
+      "id": "O1n7SUdROv4"
+    },
+    {
+      "name": "Cristiano Ronaldo",
+      "number": "77-77-7777777",
+      "id": "RHl67Z-Aknc"
+    },
+    {
+      "name": "Kylian Mbappe",
+      "number": "10-10-101010",
+      "id": "53MQ346YaJc"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
