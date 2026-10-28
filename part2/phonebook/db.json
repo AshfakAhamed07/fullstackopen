@@ -39,6 +39,16 @@
       "name": "Kylian Mbappe",
       "number": "10-10-101010",
       "id": "53MQ346YaJc"
+    },
+    {
+      "name": "Leo Messi",
+      "number": "00-00-101010",
+      "id": "low3mK12Mw4"
+    },
+    {
+      "name": "Neymar jr",
+      "number": "10-10-101010",
+      "id": "EdPjoSKsZXA"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

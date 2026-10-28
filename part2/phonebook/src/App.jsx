@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAll, create, remove, update } from "./services/persons";
+import Notification from "./components/Notification";
 
 const Filter = ({ searchName, handleSearchName }) => {
   return (
@@ -54,6 +55,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchName, setSearchName] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     getAll()
@@ -64,6 +67,22 @@ const App = () => {
         console.error("Error fetching persons:", error);
       });
   }, []);
+
+  const notify = (message) => {
+    setSuccessMessage(message);
+
+    setTimeout(() => {
+      setSuccessMessage("");
+    }, 5000);
+  };
+
+  const notifyError = (message) => {
+    setErrorMessage(message);
+
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 5000);
+  };
 
   const addName = (event) => {
     event.preventDefault();
@@ -92,10 +111,14 @@ const App = () => {
               person.id === response.data.id ? response.data : person,
             ),
           );
+          notify(`Updated ${existingPerson.name}'s number`);
           setNewName("");
           setNewNumber("");
         })
         .catch((error) => {
+          notifyError(
+            `Information of ${existingPerson.name} was already removed from the server`,
+          );
           console.error("Error updating person:", error);
         });
 
@@ -110,10 +133,13 @@ const App = () => {
     create(newNameObject)
       .then((response) => {
         setPersons(persons.concat(response.data));
+        notify(`Added ${newNameObject.name}`);
+
         setNewName("");
         setNewNumber("");
       })
       .catch((error) => {
+        notifyError(`Information of ${newNameObject.name} cannot be added`);
         console.error("Error adding person:", error);
       });
   };
@@ -151,6 +177,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage} type="success" />
+      <Notification message={errorMessage} type="error" />
       <Filter searchName={searchName} handleSearchName={handleSearchName} />
       <PersonForm
         newName={newName}
