@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 
+const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+
 const App = () => {
   const [countries, setCountries] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [weather, setWeather] = useState(null);
+  const [weatherError, setWeatherError] = useState("");
 
   useEffect(() => {
     const getCountries = async () => {
@@ -37,6 +41,51 @@ const App = () => {
     selectedCountry ||
     (matchedCountries.length === 1 ? matchedCountries[0] : null);
 
+  const capital = countryToDisplay?.capital?.[0];
+
+  useEffect(() => {
+    if (!countryToDisplay?.latlng) {
+      setWeather(null);
+      setWeatherError("");
+      return;
+    }
+
+    const [latitude, longitude] = countryToDisplay.latlng;
+    let ignore = false;
+
+    const getWeather = async () => {
+      setWeather(null);
+      setWeatherError("");
+
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`,
+        );
+
+        if (!response.ok) {
+          throw new Error(`Weather API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!ignore) {
+          setWeather(data);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error(err);
+          setWeatherError(err.message);
+        }
+      }
+    };
+
+    getWeather();
+
+    return () => {
+      ignore = true;
+    };
+  }, [countryToDisplay?.latlng?.[0], countryToDisplay?.latlng?.[1]]);
+
   const renderCountryDetails = () => {
     if (!countryToDisplay) {
       return null;
@@ -67,6 +116,19 @@ const App = () => {
             border: "1px solid #ccc",
           }}
         />
+        {weatherError && <p>Unable to load weather: {weatherError}</p>}
+        {weather && (
+          <div>
+            <h3>Weather in {capital || countryToDisplay.name.common}</h3>
+            <p>Temperature: {weather.main.temp} °C</p>
+            <p>Conditions: {weather.weather[0].description}</p>
+            <img
+              src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+              alt={weather.weather[0].description}
+            />
+            <p>Wind speed: {weather.wind?.speed ?? "N/A"} m/s</p>
+          </div>
+        )}
       </div>
     );
   };
