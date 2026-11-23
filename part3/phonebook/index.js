@@ -1,5 +1,7 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
+const Person = require("./models/person");
 
 const app = express();
 
@@ -13,7 +15,7 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body"),
 );
 
-app.use(express.static('dist'));
+app.use(express.static("dist"));
 
 let persons = [
   {
@@ -38,8 +40,11 @@ let persons = [
   },
 ];
 
+// GET all persons
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  Person.find({}).then((persons) => {
+    response.json(persons);
+  });
 });
 
 app.get("/info", (request, response) => {
@@ -52,15 +57,11 @@ app.get("/info", (request, response) => {
     `);
 });
 
+//GET a single person by id
 app.get("/api/persons/:id", (request, response) => {
-  const id = request.params.id;
-  const person = persons.find((person) => person.id === id);
-
-  if (person) {
+  Person.findById(request.params.id).then((person) => {
     response.json(person);
-  } else {
-    response.status(404).end();
-  }
+  });
 });
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -70,41 +71,24 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+// Create a new person
 app.post("/api/persons", (request, response) => {
-  const body = request.body || {};
+  const body = request.body;
 
-  const name = typeof body.name === "string" ? body.name.trim() : null;
-  const number = typeof body.number === "string" ? body.number.trim() : null;
-
-  if (!name || !number) {
+  if (!body.name || !body.number) {
     return response.status(400).json({
-      error: "name or number is missing, invalid, or empty",
+      error: "name or number missing",
     });
   }
 
-  const nameExists = persons.some(
-    (person) => person.name.toLowerCase() === name.toLowerCase(),
-  );
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
 
-  if (nameExists) {
-    return response.status(400).json({
-      error: "name must be unique",
-    });
-  }
-
-  let randomId;
-  do {
-    randomId = String(Math.floor(Math.random() * 1000000) + 1);
-  } while (persons.some((person) => person.id === randomId));
-
-  const newPerson = {
-    id: randomId,
-    name: name,
-    number: number,
-  };
-
-  persons = persons.concat(newPerson);
-  response.json(newPerson);
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 const PORT = process.env.PORT || 3001;
